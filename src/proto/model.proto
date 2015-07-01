@@ -1,0 +1,20 @@
+message OrderInfo {
+   required uint32 id = 1;
+   required string user_id = 2;
+   required uint64 timestamp = 3;
+
+   optional string description = 11;
+   optional double perform_cost = 51;
+}
+
+message OrderPerformInfo {
+   required string user_id = 2;
+   required uint64 timestamp = 3;
+
+   optional double perform_profit = 51;
+}
+
+message UserAssetInfo {
+   optional uint64 timestamp = 1;
+   optional double quantity_of_money = 11;
+}
