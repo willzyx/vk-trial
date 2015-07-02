@@ -36,14 +36,18 @@ function getSign($login, $role)
 $valueLogin = NULL;
 $valueRole = NULL;
 $valueSession = NULL;
-if (isset($_POST["inputLogin"])) {
-    $valueLogin = $_POST["inputLogin"];
-}
-if (isset($_POST["inputRole"])) {
-    $valueRole = $_POST["inputRole"];
-}
-if (isset($_COOKIE["session"])) {
-    $valueSession = $_COOKIE["session"];
+if (isset($_POST["inputSignOut"])) {
+    setcookie("session", NULL);
+} else {
+    if (isset($_POST["inputLogin"])) {
+        $valueLogin = $_POST["inputLogin"];
+    }
+    if (isset($_POST["inputRole"])) {
+        $valueRole = $_POST["inputRole"];
+    }
+    if (isset($_COOKIE["session"])) {
+        $valueSession = $_COOKIE["session"];
+    }
 }
 if (!$valueLogin && !$valueRole && $valueSession) {
     list($v1, $v2, $sign) = explode(".", $valueSession);
@@ -75,13 +79,14 @@ if (!$valueLogin || !$valueRole || !ctype_alnum($valueLogin) || !checkRole($valu
             </button>
             <a class="navbar-brand" href="#">VK Trial</a>
         </div>
-        <div id="navbar" class="collapse navbar-collapse">
-            <ul class="nav navbar-nav">
-                <li class="active"><a href="#">Home</a></li>
-                <li><a href="#about">About</a></li>
-                <li><a href="#contact">Contact</a></li>
-            </ul>
-        </div>
+        <?php if ($valueLogin) { ?>
+            <div id="navbar" class="navbar-collapse collapse">
+                <form class="navbar-form navbar-right" method="POST">
+                    <input type="hidden" name="inputSignOut">
+                    <button type="submit" class="btn btn-danger">Sign out</button>
+                </form>
+            </div>
+        <?php } ?>
     </div>
 </nav>
 
@@ -110,7 +115,8 @@ if (!$valueLogin || !$valueRole || !ctype_alnum($valueLogin) || !checkRole($valu
             </div>
         <?php } ?>
 
-        <?php function writeUserPage($login, $role) { ?>
+        <?php function writeUserPage($login, $role)
+        { ?>
             <h2>Hello <?php echo $login ?>!</h2>
         <?php } ?>
 
