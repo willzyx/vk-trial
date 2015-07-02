@@ -13,6 +13,54 @@
     <link href="common.css" rel="stylesheet">
 </head>
 
+<?php
+function checkRole($value)
+{
+    return $value == "creator" || $value == "consumer";
+}
+
+function getLine($filename)
+{
+    $file = fopen($filename, "r") or die("no $filename file");
+    $line = fgets($file);
+    fclose($file);
+    return $line;
+}
+
+function getSign($login, $role)
+{
+    $salt = getLine("../props/prop_salt");
+    return md5("$login.$role.$salt");
+}
+
+$valueLogin = NULL;
+$valueRole = NULL;
+$valueSession = NULL;
+if (isset($_POST["inputLogin"])) {
+    $valueLogin = $_POST["inputLogin"];
+}
+if (isset($_POST["inputRole"])) {
+    $valueRole = $_POST["inputRole"];
+}
+if (isset($_COOKIE["session"])) {
+    $valueSession = $_COOKIE["session"];
+}
+if (!$valueLogin && !$valueRole && $valueSession) {
+    list($v1, $v2, $sign) = explode(".", $valueSession);
+    if ($sign == getSign($v1, $v2)) {
+        $valueLogin = $v1;
+        $valueRole = $v2;
+    }
+}
+if (!$valueLogin || !$valueRole || !ctype_alnum($valueLogin) || !checkRole($valueRole)) {
+    $valueLogin = NULL;
+    $valueRole = NULL;
+} else if (!$valueSession) {
+    $sign = getSign($valueLogin, $valueRole);
+    setcookie("session", "$valueLogin.$valueRole.$sign");
+}
+?>
+
 <body>
 
 <nav class="navbar navbar-inverse navbar-fixed-top">
@@ -67,52 +115,8 @@
         <?php } ?>
 
         <?php
-        function checkRole($value)
-        {
-            return $value == "creator" || $value == "consumer";
-        }
-
-        function getLine($filename)
-        {
-            $file = fopen($filename, "r") or die("no $filename file");
-            $line = fgets($file);
-            fclose($file);
-            return $line;
-        }
-
-        function getSign($login, $role)
-        {
-            $salt = getLine("../props/prop_salt");
-            return md5("$login.$role.$salt");
-        }
-
-        $valueLogin = NULL;
-        $valueRole = NULL;
-        $valueSession = NULL;
-        if (isset($_POST["inputLogin"])) {
-            $valueLogin = $_POST["inputLogin"];
-        }
-        if (isset($_POST["inputRole"])) {
-            $valueRole = $_POST["inputRole"];
-        }
-        if (isset($_COOKIE["session"])) {
-            $valueSession = $_COOKIE["session"];
-        }
-        if (!$valueLogin && !$valueRole && $valueSession) {
-            list($v1, $v2, $sign) = explode(".", $valueSession);
-            if ($sign == getSign($v1, $v2)) {
-                $valueLogin = $v1;
-                $valueRole = $v2;
-            }
-        }
-        if (!$valueLogin || !$valueRole || !ctype_alnum($valueLogin) || !checkRole($valueRole)) writeLoginForm();
-        else {
-            if (!$valueSession) {
-                $sign = getSign($valueLogin, $valueRole);
-                setcookie("session", "$valueLogin.$valueRole.$sign");
-            }
-            writeUserPage($valueLogin, $valueRole);
-        }
+        if (!$valueLogin) writeLoginForm();
+        else writeUserPage($valueLogin, $valueRole);
         ?>
     </div>
 
