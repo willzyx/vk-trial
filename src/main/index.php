@@ -14,54 +14,17 @@
 </head>
 
 <?php
-function checkRole($value)
-{
-    return $value == "creator" || $value == "consumer";
-}
+require 'auth.php';
 
-function getLine($filename)
-{
-    $file = fopen($filename, "r") or die("no $filename file");
-    $line = fgets($file);
-    fclose($file);
-    return $line;
-}
-
-function getSign($login, $role)
-{
-    $salt = getLine("../props/prop_salt");
-    return md5("$login.$role.$salt");
-}
-
-$valueLogin = NULL;
-$valueRole = NULL;
-$valueSession = NULL;
+$authInfo = NULL;
 if (isset($_POST["inputSignOut"])) {
     setcookie("session", NULL);
 } else {
-    if (isset($_POST["inputLogin"])) {
-        $valueLogin = $_POST["inputLogin"];
+    if (!$authInfo) $authInfo = getAuthInfo();
+    if (!$authInfo) {
+        $authInfo = createAuthInfo();
+        if ($authInfo) $authInfo->save_signed_cookie();
     }
-    if (isset($_POST["inputRole"])) {
-        $valueRole = $_POST["inputRole"];
-    }
-    if (isset($_COOKIE["session"])) {
-        $valueSession = $_COOKIE["session"];
-    }
-}
-if (!$valueLogin && !$valueRole && $valueSession) {
-    list($v1, $v2, $sign) = explode(".", $valueSession);
-    if ($sign == getSign($v1, $v2)) {
-        $valueLogin = $v1;
-        $valueRole = $v2;
-    }
-}
-if (!$valueLogin || !$valueRole || !ctype_alnum($valueLogin) || !checkRole($valueRole)) {
-    $valueLogin = NULL;
-    $valueRole = NULL;
-} else if (!$valueSession) {
-    $sign = getSign($valueLogin, $valueRole);
-    setcookie("session", "$valueLogin.$valueRole.$sign");
 }
 ?>
 
@@ -79,7 +42,7 @@ if (!$valueLogin || !$valueRole || !ctype_alnum($valueLogin) || !checkRole($valu
             </button>
             <a class="navbar-brand" href="#">VK Trial</a>
         </div>
-        <?php if ($valueLogin) { ?>
+        <?php if ($authInfo) { ?>
             <div id="navbar" class="navbar-collapse collapse">
                 <form class="navbar-form navbar-right" method="POST">
                     <input type="hidden" name="inputSignOut">
@@ -115,14 +78,15 @@ if (!$valueLogin || !$valueRole || !ctype_alnum($valueLogin) || !checkRole($valu
             </div>
         <?php } ?>
 
-        <?php function writeUserPage($login, $role)
-        { ?>
-            <h2>Hello <?php echo $login ?>!</h2>
+        <?php function writeUserPage($authInfo)
+        {
+            ?>
+            <h2>Hello <?php echo $authInfo->login ?>!</h2>
         <?php } ?>
 
         <?php
-        if (!$valueLogin) writeLoginForm();
-        else writeUserPage($valueLogin, $valueRole);
+        if ($authInfo) writeUserPage($authInfo);
+        else writeLoginForm();
         ?>
     </div>
 
