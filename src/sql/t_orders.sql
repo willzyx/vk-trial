@@ -1,5 +1,5 @@
 CREATE TABLE t_orders (
-   order_id int PRIMARY KEY AUTO_INCREMENT,
+   order_id varchar(32) PRIMARY KEY,
    perform_uid varchar(30),
    perform_timestamp bigint,
    data_order blob,
