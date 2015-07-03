@@ -14,7 +14,7 @@ message OrderPerformInfo {
    optional double perform_profit = 51;
 }
 
-message UserAssetInfo {
+message UserWalletInfo {
    optional uint64 timestamp = 1;
    optional double quantity_of_money = 11;
 }
