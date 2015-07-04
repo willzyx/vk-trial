@@ -1,8 +1,7 @@
 <?php function writeWallet($wallet)
 {
     ?>
-
-    <div id="div-wallet" class="bs-callout bs-callout-success">
+    <div class="bs-callout bs-callout-success">
         <h4>Your Wallet</h4>
         Current assets: <strong> <?php echo $wallet ->getQuantityOfMoney(); ?> nail(s) </strong>
     </div>
@@ -11,7 +10,7 @@
 
 <?php
 
-require 'proto_model.php';
+require_once 'proto_model.php';
 
 function doArrangeOrders($db, $user)
 {
