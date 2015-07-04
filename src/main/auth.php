@@ -24,10 +24,20 @@ class AuthInfo
         return "AuthInfo [$this->login, $this->role]";
     }
 
+    public function isCreator()
+    {
+        return $this ->role == "creator";
+    }
+
+    public function isConsumer()
+    {
+        return $this ->role == "consumer";
+    }
+
     function is_correct()
     {
         $f1 = $this->login && ctype_alnum($this->login);
-        $f2 = $this->role == "creator" || $this->role == "consumer";
+        $f2 = $this ->isCreator() || $this ->isConsumer();
         return $f1 && $f2;
     }
 
