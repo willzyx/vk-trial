@@ -13,8 +13,10 @@ function reportListing($db, $authInfo)
     if ($sql) {
         if ($sql ->execute()) {
 
-            ?>
-            <table class="table table-striped">
+            function writeTableHead($authInfo)
+            {
+                ?>
+                <table class="table table-striped">
                 <thead>
                 <tr>
                     <th>Description</th>
@@ -25,36 +27,58 @@ function reportListing($db, $authInfo)
                 </tr>
                 </thead>
                 <tbody>
-                <?php
+            <?php
+            }
 
-                $sql ->bind_result($data_order);
-                while ($sql ->fetch()) {
-                    $orderInfo = new OrderInfo();
-                    $orderInfo ->parseFromString($data_order);
-                    ?>
-
-                    <tr id="order_<?php echo $orderInfo->getId(); ?>">
-                        <td><?php echo $orderInfo->getDescription(); ?> </td>
-                        <td>
-                            <?php echo $orderInfo->getPerformCost(); ?> nail(s)
-                        </td>
-                        <?php if ($authInfo ->isConsumer()) { ?>
-                            <td>
-                                <button type="button" class="btn btn-primary"
-                                        onclick="consumeOrder('<?php echo $orderInfo->getId(); ?>')">
-                                    Buy it!
-                                </button>
-                            </td>
-                        <?php } ?>
-                    </tr>
-
-                <?php
-                }
-
+            function writeTableTail()
+            {
                 ?>
                 </tbody>
-            </table>
-        <?php
+                </table>
+            <?php
+            }
+
+            function writeEmptyTable()
+            {
+                ?>
+                <div class="alert alert-info" role="alert">No orders found</div>
+            <?php
+            }
+
+            function writeTableRow($authInfo, $orderInfo)
+            {
+                ?>
+
+                <tr id="order_<?php echo $orderInfo->getId(); ?>">
+                    <td><?php echo $orderInfo->getDescription(); ?> </td>
+                    <td>
+                        <?php echo $orderInfo->getPerformCost(); ?> nail(s)
+                    </td>
+                    <?php if ($authInfo ->isConsumer()) { ?>
+                        <td>
+                            <button type="button" class="btn btn-primary"
+                                    onclick="consumeOrder('<?php echo $orderInfo->getId(); ?>')">
+                                Buy it!
+                            </button>
+                        </td>
+                    <?php } ?>
+                </tr>
+            <?php
+            }
+
+            $firstLine = true;
+            $sql ->bind_result($data_order);
+            while ($sql ->fetch()) {
+                if ($firstLine) {
+                    writeTableHead($authInfo);
+                    $firstLine = false;
+                }
+                $orderInfo = new OrderInfo();
+                $orderInfo ->parseFromString($data_order);
+                writeTableRow($authInfo, $orderInfo);
+            }
+            if ($firstLine) writeEmptyTable();
+            else writeTableTail();
         }
         $sql ->close();
     }

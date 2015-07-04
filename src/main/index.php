@@ -15,6 +15,9 @@
 
 <?php
 require 'auth.php';
+require 'util_wallet.php';
+require 'util_listing.php';
+require 'db_vk.php';
 
 $authInfo = NULL;
 if (isset($_POST["inputSignOut"])) {
@@ -80,8 +83,25 @@ if (isset($_POST["inputSignOut"])) {
 
         <?php function writeUserPage($authInfo)
         {
+            $db = openDB();
+            ?> <h2>Hello <?php echo $authInfo->login ?>!</h2> <?php
+
+            if ($authInfo ->isConsumer()) {
+                ?>
+                <div id="div-wallet">
+                    <?php reportWallet($db, $authInfo ->login); ?>
+                </div>
+            <?php
+            }
+
             ?>
-            <h2>Hello <?php echo $authInfo->login ?>!</h2>
+            <div id="div-notify"></div>
+            <?php
+
+            reportListing($db, $authInfo);
+
+            ?>
+
         <?php } ?>
 
         <?php
