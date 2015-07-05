@@ -13,16 +13,19 @@
     <div class="alert alert-danger" role="alert">
         Can't consume order. <?php echo $msg; ?>
     </div>
-<?php }
+<?php
+}
 
-function reportDBError() {
+function reportDBError()
+{
     reportError("No access to database");
 }
+
 ?>
 
 <?php
 
-$CONSUME_PENALTY = 0.5;
+$CONSUME_PENALTY = 0.5; // TODO: this should be stored in database
 
 require 'auth.php';
 require 'proto_model.php';
@@ -37,50 +40,57 @@ if (!$authInfo) {
 
 if (!isset($_GET["order-id"])) return;
 $order_id = $_GET["order-id"];
-if (!ctype_alnum($order_id)) return;
 
 $db = openDB();
-if (!$db) {
-    reportDBError();
-    return;
-}
-
-$sqlSelect = $db->prepare("SELECT data_order FROM t_orders WHERE order_id = ?");
-$sqlSelect->bind_param("s", $order_id);
-if ($sqlSelect->execute()) {
-    $sqlSelect->bind_result($data_order);
-    if ($sqlSelect->fetch()) {
-        $order = new OrderInfo();
-        $order->parseFromString($data_order);
-    }
-}
-$sqlSelect->close();
-
-$performInfo = new OrderPerformInfo();
-$performInfo ->setUserId($authInfo->login);
-$performInfo ->setTimestamp(time());
-$performInfo ->setPerformProfit($order->getPerformCost() * $CONSUME_PENALTY);
-
-$sqlUpdate = $db ->prepare(
-    "UPDATE t_orders SET " .
-    "data_perform = ?, " .
-    "perform_uid = ? " .
-    "WHERE order_id = ? AND data_perform IS NULL"
-);
-if (!$sqlUpdate) reportDBError();
+if (!$db) reportDBError();
 else {
-    $sqlUpdate ->bind_param(
-        "sss",
-        $performInfo ->serializeToString(),
-        $performInfo ->getUserId(),
-        $order_id
-    );
-    if ($sqlUpdate->execute()) {
-        if ($sqlUpdate->affected_rows > 0) {
-            reportSuccess($performInfo);
-        } else {
-            reportError("It's already been consumed!");
+    $orderInfo = null;
+
+    $sql = $db->prepare("SELECT data_order FROM t_orders WHERE order_id = ?");
+    if ($sql) {
+        if (
+            $sql->bind_param("s", $order_id) &&
+            $sql->execute() &&
+            $sql->bind_result($data_order) &&
+            $sql->fetch()
+        ) {
+            $orderInfo = new OrderInfo();
+            $orderInfo->parseFromString($data_order);
         }
-    } else reportDBError();
-    $sqlUpdate ->close();
+        $sql->close();
+    }
+
+    if (!$orderInfo) {
+        reportDBError();
+        return;
+    }
+
+    $performInfo = new OrderPerformInfo();
+    $performInfo ->setUserId($authInfo->login);
+    $performInfo ->setTimestamp(time());
+    $performInfo ->setPerformProfit($orderInfo->getPerformCost() * $CONSUME_PENALTY);
+
+    $fl = false;
+    $sql = $db ->prepare(
+        "UPDATE t_orders
+          SET data_perform = ?, perform_uid = ?
+          WHERE order_id = ? AND data_perform IS NULL"
+    );
+    if ($sql) {
+        $fl = $sql ->bind_param("sss",
+            $performInfo ->serializeToString(),
+            $performInfo ->getUserId(),
+            $order_id
+        );
+        $fl = $fl && $sql->execute();
+        if ($fl) {
+            if ($sql->affected_rows > 0) {
+                reportSuccess($performInfo);
+            } else {
+                reportError("It's already been consumed!");
+            }
+        }
+        $sql ->close();
+    }
+    if (!$fl) reportDBError();
 }

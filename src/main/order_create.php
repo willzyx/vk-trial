@@ -35,8 +35,8 @@ if (isset($_POST["inputPrice"])) {
     $valuePrice = floatval($_POST["inputPrice"]);
 }
 
-if (!$valueDesc || strlen($valueDesc) < 30) reportError("Description should contain at least 30 symbols");
-else if (!$valuePrice || $valuePrice <= 0) reportError("Correct price should be specified");
+if (is_null($valueDesc) || strlen($valueDesc) < 30) reportError("Description should contain at least 30 symbols");
+else if (is_null($valuePrice) || $valuePrice <= 0) reportError("Correct price should be specified");
 else {
     $timestamp = time();
     $item = new OrderInfo();
@@ -45,17 +45,15 @@ else {
     $item->setUserId($authInfo->login);
     $item->setDescription($valueDesc);
     $item->setPerformCost($valuePrice);
-
+    $fl = false;
     $db = openDB();
-    if (!$db) reportError("There is a problem with database");
-    else {
+    if ($db) {
         $sql = $db ->prepare("INSERT INTO t_orders (order_id, data_order) VALUES (?, ?)");
-        $sql ->bind_param("ss", $item->getId(), $item->serializeToString());
-        if ($sql ->execute()) {
-            reportSuccess();
-        } else {
-            reportError("There is a problem with database");
+        if ($sql) {
+            $fl = $sql ->bind_param("ss", $item->getId(), $item->serializeToString()) && $sql ->execute();
+            $fl = $sql ->close() && $fl;
         }
-        $db ->close();
     }
+    if ($fl) reportSuccess();
+    else reportError("There is a problem with database");
 }
