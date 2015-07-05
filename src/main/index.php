@@ -93,14 +93,40 @@ if (isset($_POST["inputSignOut"])) {
                 </div>
             <?php
             }
+            if ($authInfo ->isCreator()) {
+                ?>
+
+                <form method="POST" id="form-create-order" class="form-create-order">
+                    <div class="form-group">
+                        <label for="inputCODesc">Description</label>
+                        <textarea id="inputCODesc" class="form-control"
+                                  name="inputDesc"
+                                  rows="3"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="inputCOPrice">Price (in nails)</label>
+
+                        <div class="input-group">
+                            <div class="input-group-addon">N</div>
+                            <input type="text"
+                                   id="inputCOPrice" class="form-control"
+                                   name="inputPrice"
+                                   placeholder="Price">
+
+                            <div class="input-group-addon">.00</div>
+                        </div>
+                    </div>
+                    <button type="button" class="btn btn-primary" onclick="publishOrder()">Publish</button>
+                </form>
+
+            <?php
+            }
 
             ?>
             <div id="div-notify"></div>
-            <?php
-
-            reportListing($db, $authInfo);
-
-            ?>
+            <div id="div-listing">
+                <?php reportListing($db, $authInfo); ?>
+            </div>
 
         <?php } ?>
 
