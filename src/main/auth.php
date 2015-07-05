@@ -8,7 +8,7 @@ function getFileLine($filename)
     return $line;
 }
 
-function getAuthSign($login, $role)
+function getAuthSignature($login, $role)
 {
     $salt = getFileLine("../props/prop_salt");
     return md5("$login.$role.$salt");
@@ -34,28 +34,31 @@ class AuthInfo
         return $this ->role == "consumer";
     }
 
-    function is_correct()
+    function isCorrect()
     {
-        $f1 = $this->login && ctype_alnum($this->login);
-        $f2 = $this ->isCreator() || $this ->isConsumer();
-        return $f1 && $f2;
+        if (is_null($this->login)) return false;
+        if (strlen($this ->login) > 25) return false;
+        if (strlen($this ->login) < 1) return false;
+        if (!ctype_alnum($this->login)) return false;
+        if (!$this ->isCreator() && !$this ->isConsumer()) return false;
+        return true;
     }
 
-    function save_signed_cookie()
+    function saveSignedCookie()
     {
-        $sign = getAuthSign($this->login, $this->role);
+        $sign = getAuthSignature($this->login, $this->role);
         setcookie("session", "$this->login.$this->role.$sign");
     }
 }
 
 function parseAuthSession($session)
 {
-    list($v1, $v2, $sign) = explode(".", $session);
-    if ($sign == getAuthSign($v1, $v2)) {
+    list($v1, $v2, $v3) = explode(".", $session);
+    if ($v3 == getAuthSignature($v1, $v2)) {
         $authInfo = new AuthInfo();
-        $authInfo->login = $v1;
-        $authInfo->role = $v2;
-        if ($authInfo->is_correct()) return $authInfo;
+        $authInfo ->login = $v1;
+        $authInfo ->role = $v2;
+        if ($authInfo->isCorrect()) return $authInfo;
     }
     return NULL;
 }
@@ -73,6 +76,6 @@ function createAuthInfo()
     $info = new AuthInfo();
     $info->login = $_POST["inputLogin"];
     $info->role = $_POST["inputRole"];
-    if (!$info->is_correct()) return null;
-    return $info;
+    if ($info->isCorrect()) return $info;
+    else return null;
 }

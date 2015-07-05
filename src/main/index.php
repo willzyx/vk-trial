@@ -26,7 +26,7 @@ if (isset($_POST["inputSignOut"])) {
     if (!$authInfo) $authInfo = getAuthInfo();
     if (!$authInfo) {
         $authInfo = createAuthInfo();
-        if ($authInfo) $authInfo->save_signed_cookie();
+        if ($authInfo) $authInfo ->saveSignedCookie();
     }
 }
 ?>
