@@ -8,7 +8,7 @@ function reportListing($db, $authInfo)
         "SELECT data_order
           FROM t_orders
           WHERE data_perform IS NULL
-          ORDER BY order_id"
+          ORDER BY order_id DESC"
     );
     if ($sql) {
         if ($sql ->execute()) {
@@ -16,11 +16,11 @@ function reportListing($db, $authInfo)
             function writeTableHead($authInfo)
             {
                 ?>
-                <table class="table table-striped">
+                <table class="table table-striped table-listing">
                 <thead>
                 <tr>
-                    <th>Description</th>
-                    <th>Price</th>
+                    <th class="td-desc">Description</th>
+                    <th class="td-price">Price</th>
                     <?php if ($authInfo ->isConsumer()) { ?>
                         <th></th>
                     <?php } ?>
@@ -50,8 +50,8 @@ function reportListing($db, $authInfo)
                 ?>
 
                 <tr id="order_<?php echo $orderInfo->getId(); ?>">
-                    <td><?php echo $orderInfo->getDescription(); ?> </td>
-                    <td>
+                    <td class="td-desc"><?php echo $orderInfo->getDescription(); ?> </td>
+                    <td class="td-price">
                         <?php echo $orderInfo->getPerformCost(); ?> nail(s)
                     </td>
                     <?php if ($authInfo ->isConsumer()) { ?>

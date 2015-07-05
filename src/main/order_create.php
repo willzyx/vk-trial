@@ -10,6 +10,7 @@
 {
     ?>
     <div class="alert alert-success" role="alert">Order has been successfully created!</div>
+    <script language="JavaScript">eventOrderPublished();</script>
 <?php } ?>
 
 <?php
@@ -48,13 +49,13 @@ else {
     $db = openDB();
     if (!$db) reportError("There is a problem with database");
     else {
-        $sql = $db -> prepare("INSERT INTO t_orders (order_id, data_order) VALUES (?, ?)");
-        $sql -> bind_param("ss", $item->getId(), $item->serializeToString());
-        if ($sql -> execute()) {
+        $sql = $db ->prepare("INSERT INTO t_orders (order_id, data_order) VALUES (?, ?)");
+        $sql ->bind_param("ss", $item->getId(), $item->serializeToString());
+        if ($sql ->execute()) {
             reportSuccess();
         } else {
             reportError("There is a problem with database");
         }
-        $db -> close();
+        $db ->close();
     }
 }
