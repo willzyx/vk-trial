@@ -11,7 +11,4 @@ if (!$authInfo) {
     return;
 }
 
-$db = openDB();
-if ($db) {
-    reportListing($db, $authInfo);
-} else http_response_code(500);
+reportListing(openDB(), $authInfo);

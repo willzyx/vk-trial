@@ -7,16 +7,18 @@ function reportListing($db, $authInfo)
     function writeError()
     {
         ?>
-        <div class="alert alert-danger" role="alert">Can't connect to database</div>
+        <div class="alert alert-danger" role="alert">Listing unavailable. Can't connect to database</div>
     <?php
     }
 
-    $sql = $db ->prepare(
-        "SELECT data_order
-          FROM t_orders
-          WHERE perform_uid IS NULL
-          ORDER BY order_id DESC"
-    );
+    $sql = null;
+    if ($db) {
+        $sql = $db ->prepare(
+            "SELECT data_order FROM t_orders
+              WHERE perform_uid IS NULL
+              ORDER BY order_id DESC"
+        );
+    }
     if (!$sql) writeError();
     else {
 
