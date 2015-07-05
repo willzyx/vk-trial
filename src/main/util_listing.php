@@ -7,7 +7,7 @@ function reportListing($db, $authInfo)
     $sql = $db ->prepare(
         "SELECT data_order
           FROM t_orders
-          WHERE data_perform IS NULL
+          WHERE perform_uid IS NULL
           ORDER BY order_id DESC"
     );
     if ($sql) {

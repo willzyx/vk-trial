@@ -7,3 +7,4 @@ CREATE TABLE t_orders (
 );
 
 CREATE UNIQUE INDEX idx_t_orders_performing ON t_orders (perform_uid, perform_order);
+CREATE UNIQUE INDEX idx_t_orders_listing ON t_orders (perform_uid, order_id);
