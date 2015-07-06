@@ -1,3 +1,7 @@
+/*  I've used this extension
+ *  https://github.com/allegro/php-protobuf
+ */
+
 message OrderInfo {
    required string id = 1;
    required string user_id = 2;
