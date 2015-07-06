@@ -113,6 +113,7 @@ if (isset($_POST["inputSignOut"])) {
                             <input type="text"
                                    id="inputCOPrice" class="form-control"
                                    name="inputPrice"
+                                   onkeydown="if (event.keyCode == 13) return false;"
                                    placeholder="Price">
 
                             <div class="input-group-addon">.00</div>
