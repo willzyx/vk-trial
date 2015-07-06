@@ -72,11 +72,13 @@ function refreshWallet($db, $user)
     $valueMoney = $wallet ->getQuantityOfMoney();
     $sql = $db ->prepare("SELECT data_perform, perform_order FROM t_orders WHERE perform_uid = ? AND perform_order > ?");
     if ($sql) {
+        $hasChanged = false;
         $fl = $sql ->bind_param("si", $user, $valueOrder) && $sql ->execute();
         if ($fl) {
             $fl = $sql ->bind_result($data_perform, $perform_order);
             if ($fl) {
                 while ($sql ->fetch()) {
+                    $hasChanged = true;
                     if ($valueOrder < $perform_order) {
                         $valueOrder = $perform_order;
                     }
@@ -86,7 +88,7 @@ function refreshWallet($db, $user)
                 }
             }
         }
-        if ($sql ->close() && $fl) {
+        if ($sql ->close() && $fl && $hasChanged) {
             $wallet ->setPerformOrder($valueOrder);
             $wallet ->setQuantityOfMoney($valueMoney);
             saveWallet($db, $user, $wallet);
