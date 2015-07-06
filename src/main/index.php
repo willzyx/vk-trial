@@ -48,7 +48,7 @@ if (isset($_POST["inputSignOut"])) {
         <?php if ($authInfo) { ?>
             <div id="navbar" class="navbar-collapse collapse">
                 <form class="navbar-form navbar-right" method="POST">
-                    <input type="hidden" name="inputSignOut">
+                    <input type="hidden" name="inputSignOut" value="yes">
                     <button type="submit" class="btn btn-danger">Sign out</button>
                 </form>
             </div>
