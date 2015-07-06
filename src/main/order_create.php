@@ -36,6 +36,7 @@ if (isset($_POST["inputPrice"])) {
 }
 
 if (is_null($valueDesc) || strlen($valueDesc) < 30) reportError("Description should contain at least 30 symbols");
+else if (strlen($valueDesc) > 3000) reportError("Description can't be longer than 3000 symbols");
 else if (is_null($valuePrice) || $valuePrice <= 0) reportError("Correct price should be specified");
 else {
     $timestamp = time();

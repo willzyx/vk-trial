@@ -68,6 +68,7 @@ if (isset($_POST["inputSignOut"])) {
                     <label for="inputLogin" class="sr-only">Login</label>
                     <input type="text" name="inputLogin"
                            id="inputLogin" class="form-control"
+                           maxlength="25"
                            placeholder="Login" required autofocus>
 
                     <div class="radio">
@@ -101,6 +102,7 @@ if (isset($_POST["inputSignOut"])) {
                         <label for="inputCODesc">Description</label>
                         <textarea id="inputCODesc" class="form-control"
                                   name="inputDesc"
+                                  maxlength="3000"
                                   rows="3"></textarea>
                     </div>
                     <div class="form-group">
